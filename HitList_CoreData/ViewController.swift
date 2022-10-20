@@ -11,7 +11,7 @@ import CoreData
 class ViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
-    var names: [String] = []
+    
     var people: [NSManagedObject] =  []
     
     override func viewDidLoad() {
@@ -19,6 +19,27 @@ class ViewController: UIViewController {
         
         title = "The List"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        //1
+        guard let appDelegate =
+                UIApplication.shared.delegate as? AppDelegate else {
+                    return
+                }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        // 2
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Person")
+        
+        //3
+        do {
+            people = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
     }
 
     @IBAction func addName(_ sender: UIBarButtonItem) {
@@ -28,7 +49,6 @@ class ViewController: UIViewController {
             guard let textField = alert.textFields?.first, let nameToSave = textField.text else {
                 return
             }
-//            self.names.append(nameToSave)
             self.save(name: nameToSave)
             self.tableView.reloadData()
         }
